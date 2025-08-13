@@ -1,0 +1,213 @@
+plugins {
+	id "com.crystaelix.loom" version "1.10.0"
+	id "eclipse"
+	id "idea"
+	id "maven-publish"
+	id "net.kyori.blossom" version "[1,2)"
+	id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+}
+
+repositories {
+	mavenCentral()
+	flatDir {
+		dirs "libs"
+	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url = "https://maven.parchmentmc.net/"
+			}
+		}
+		filter {
+			includeGroup "org.parchmentmc.data"
+		}
+	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url = "https://maven.bawnorton.com/releases/"
+			}
+		}
+		filter {
+			includeGroup "com.github.bawnorton.mixinsquared"
+		}
+	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url = "https://maven.ladysnake.org/releases/"
+			}
+		}
+		filter {
+			includeGroup "dev.onyxstudios.cardinal-components-api"
+		}
+	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url = "https://cursemaven.com/"
+			}
+		}
+		filter {
+			includeGroup "curse.maven"
+		}
+	}
+}
+
+def mcVersion = "1.20.1"
+def modName = "ConnectorMixinPatches"
+def modId = "connectormixinpatches"
+def specVersion = "20.1"
+def vendor = "thelm"
+
+group = "thelm.connectormixinpatches"
+version = "20.1.0.0"
+
+archivesBaseName = modName
+
+sourceSets {
+	main
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+		vendor = JvmVendorSpec.AZUL
+	}
+	withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+}
+
+loom {
+	silentMojangMappingsLicense()
+	forge {
+		mixinConfig "${modId}.mixins.json"
+	}
+	mixin.defaultRefmapName = "${modId}.refmap.json"
+	runs {
+		configureEach {
+			property "forge.logging.console.level", "debug"
+		}
+		client
+		server
+	}
+}
+
+dependencies {
+	// Log4j
+	implementation "org.apache.logging.log4j:log4j-core:2.24.3"
+
+	// Minecraft
+	minecraft "com.mojang:minecraft:1.20.1"
+	mappings loom.layered {
+		officialMojangMappings()
+		parchment "org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip"
+	}
+	forge "net.minecraftforge:forge:1.20.1-47.4.4"
+
+	// Mixin
+	implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.4"))
+	include(implementation("com.github.bawnorton.mixinsquared:mixinsquared-forge:0.3.4"))
+	implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
+
+	// Bewitchment
+	implementation("dev.onyxstudios.cardinal-components-api:cardinal-components-api:5.2.3") {exclude group: "net.fabricmc.fabric-api"}
+	implementation "curse.maven:bewitchment-394915:5819540"
+
+	// Spectrum
+	implementation "curse.maven:spectrum-556967:6429375"
+
+	// Wheelbarrow (doesn't load?)
+	implementation "curse.maven:wheelbarrow-998859:5261817"
+}
+
+def replacements = [
+	"0@VERSION@": version
+]
+
+blossom {
+	replaceToken(replacements)
+}
+
+processResources {
+	inputs.properties(replacements)
+	filesMatching(["mcmod.info", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "fabric.mod.json"]) {
+		filter {
+			it.replace(replacements)
+		}
+	}
+}
+
+def manifestAttributes = [
+	"Specification-Title": modName,
+	"Specification-Vendor": vendor,
+	"Specification-Version": specVersion,
+	"Implementation-Title": archivesBaseName,
+	"Implementation-Version": version,
+	"Implementation-Vendor": vendor
+]
+
+jar {
+	manifest.attributes(manifestAttributes)
+}
+
+sourcesJar {
+	manifest.attributes(manifestAttributes)
+}
+
+publishing {
+	publications {
+		register("mavenJava", MavenPublication) {
+			artifactId = archivesBaseName
+			artifact remapJar
+			artifact sourcesJar
+		}
+	}
+	repositories {
+		if(project.hasProperty("CrystaelixMavenUsername") && project.hasProperty("CrystaelixMavenPassword")) {
+			maven {
+				name = "CrystaelixMaven"
+				url = "https://maven.crystaelix.com/releases/"
+				credentials(PasswordCredentials)
+			}
+		}
+	}
+}
+
+def curseforgeDependencies = [
+	"bewitchment",
+	"spectrum"
+]
+
+def modrinthDependencies = [
+	"bewitchment",
+	"spectrum"
+]
+
+//publishMods {
+//	file = remapJar.archiveFile
+//	version = displayName = "${mcVersion}-${project.version}"
+//	changelog = file("changelog.md").text
+//	type = ALPHA
+//	modLoaders.addAll("forge", "neoforge")
+//	additionalFiles.from(sourcesJar.archiveFile)
+//
+//	curseforge {
+//		accessToken = providers.gradleProperty("curseforge.token")
+//		projectId = ""
+//		minecraftVersions.add(mcVersion)
+//		requires "sinytra-connector"
+//		optional curseforgeDependencies as String[]
+//	}
+//
+//	modrinth {
+//		accessToken = providers.gradleProperty("modrinth.token")
+//		projectId = ""
+//		minecraftVersions.add(mcVersion)
+//		requires "connector"
+//		optional modrinthDependencies as String[]
+//	}
+//}

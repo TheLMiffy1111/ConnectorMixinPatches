@@ -1,0 +1,12 @@
+{
+	"required": false,
+	"minVersion": "0.8",
+	"package": "thelm.connectormixinpatches.mixin",
+	"refmap": "connectormixinpatches.refmap.json",
+	"target": "@env(DEFAULT)",
+	"compatibilityLevel": "JAVA_17",
+	"plugin": "thelm.connectormixinpatches.ConnectorMixinPatches",
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

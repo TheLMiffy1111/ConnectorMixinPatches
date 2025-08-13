@@ -1,0 +1,17 @@
+modLoader = "lowcodefml"
+loaderVersion = "[47,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/TheLMiffy1111/ConnectorMixinPatches/issues"
+
+[[mods]]
+	modId = "connectormixinpatches"
+	version = "0@VERSION@"
+	displayName = "ConnectorMixinPatches"
+	description = "A mod that patches mixins of Fabric mods with MixinSquared to work with Connector on newer versions of Forge."
+	authors = "TheLMiffy1111"
+	displayURL = "https://github.com/TheLMiffy1111/ConnectorMixinPatches"
+
+[[dependencies.connectormixinpatches]]
+	modId = "connectormod"
+	versionRange = "*"
+	mandatory = true
