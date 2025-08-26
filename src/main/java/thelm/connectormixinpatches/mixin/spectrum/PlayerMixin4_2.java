@@ -28,7 +28,7 @@ public abstract class PlayerMixin4_2 extends LivingEntity {
 		return EnchantmentHelper.getTagEnchantmentLevel(Enchantments.CHANNELING, stack);
 	}
 
-	@ModifyVariable(method = "attack", name = "reach", at = @At("STORE"))
+	@ModifyVariable(method = "attack", at = @At("STORE"), name = "reach")
 	protected double spectrum$increaseSweepMaxDistance(double original) {
 		ItemStack stack = getItemInHand(InteractionHand.MAIN_HAND);
 		if(stack.getItem() == BuiltInRegistries.ITEM.get(new ResourceLocation("spectrum:draconic_twinsword"))) {
