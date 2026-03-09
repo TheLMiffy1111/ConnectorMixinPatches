@@ -104,7 +104,7 @@ dependencies {
 		officialMojangMappings()
 		parchment "org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip"
 	}
-	forge "net.minecraftforge:forge:1.20.1-47.4.13"
+	forge "net.minecraftforge:forge:1.20.1-47.4.16"
 
 	// Mixin
 	implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.4"))
